@@ -1,0 +1,40 @@
+body {
+    background-image: url("images/crossword.png");
+    font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+}
+
+body > h1 {
+    text-align: center;
+}
+
+sic-facebook-og-share {
+    background-color: #3b5998;
+    padding: 5px;
+    color: white;
+    border-radius: 3px;
+    cursor:pointer;
+}
+
+div[ng-controller="HomeCtrl"] {
+
+    position: relative;
+    max-width: 60%;
+    width: 60%;
+    left: 20%;
+    text-align: center;
+}
+
+div[ng-controller="HomeCtrl"] ol {
+    position: absolute;
+    max-width: 20%;
+    margin-left: 40%;
+    width: 20%;
+}
+
+div[ng-controller="HomeCtrl"] > * {
+    position: relative;
+    max-width: 100%;
+    width: 100%;
+}
+
+/*# sourceMappingURL=main.css.map */

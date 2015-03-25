@@ -1,3 +1,47 @@
-<div ng-controller='HomeCtrl'>	
-	<!-- TODO: place directive call here -->
+<div ng-controller='HomeCtrl'>
+    <h2>Facebook simple</h2>
+
+    <div hljs>
+        <sic-facebook-simple sic-fb-layout="button_count"
+                             sic-fb-url="https://www.facebook.com/pages/Akoten/263615787128883"></sic-facebook-simple>
+    </div>
+    <div>
+        <sic-facebook-simple sic-fb-layout="button_count"
+                             sic-fb-url="https://www.facebook.com/pages/Akoten/263615787128883"></sic-facebook-simple>
+    </div>
+    <br>
+    <h2>Facebook Open Graph</h2>
+    <div hljs>
+        <sic-facebook-og-share og-action-type="angular-sic:test" og-object-key="sharing_is_caring"
+                               og-object-value="https://akoten.github.io/sharingiscaring"
+                               anchor-element-content="Test it!"
+                               og-url="https://akoten.github.io/sharingiscaring"></sic-facebook-og-share>
+    </div>
+    <div>
+        <sic-facebook-og-share og-action-type="angular-sic:test" og-object-key="sharing_is_caring"
+                               og-object-value="https://akoten.github.io/sharingiscaring"
+                               anchor-element-content="Test it!"
+                               og-url="https://akoten.github.io/sharingiscaring"
+                               og-title="Sharing is caring is awesome!"
+                               og-description="And so are you."
+                                og-type="angular-sic:sharing_is_caring"></sic-facebook-og-share>
+    </div>
+
+    <br><br>
+
+    <!--<h2>Twitter</h2>-->
+
+    <!--<div hljs>-->
+        <!--<sic-twitter sic-twit-url="https://twitter.com/share" sic-twit-class="twitter-follow-button">Tweet</sic-twitter>-->
+    <!--</div>-->
+    <!--<sic-twitter sic-twit-url="https://twitter.com/share" sic-twit-class="twitter-follow-button">Tweet</sic-twitter>-->
+    <br><br>
+
+    <h2>Wishlist:</h2>
+    <ol>
+        <li>Twitter</li>
+        <li>Google+</li>
+        <li>Pinterest</li>
+        <li>LinkedIn</li>
+    </ol>
 </div>
