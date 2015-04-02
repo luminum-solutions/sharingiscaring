@@ -5,6 +5,7 @@
 angular.module('Akoten.sharingiscaring', [])
     .provider("sicFacebook", function () {
         var appId;
+        var eventBasedShare;
         var rScope;
 
         function initSDK(newRootScope) {
@@ -18,7 +19,7 @@ angular.module('Akoten.sharingiscaring', [])
                     }
                     js = d.createElement(s);
                     js.id = id;
-                    js.src = "//connect.facebook.net/en_US/sdk/debug.js";
+                    js.src = "//connect.facebook.net/en_US/sdk.js";
                     fjs.parentNode.insertBefore(js, fjs);
                 }(document, 'script', 'facebook-jssdk'));
                 window.fbAsyncInit = function () {
@@ -70,12 +71,15 @@ angular.module('Akoten.sharingiscaring', [])
             setAppId: function (newAppId) {
                 appId = newAppId;
             },
+            setEventBasedShare: function (manualShare) {
+                eventBasedShare = manualShare;
+            },
             $get: function ($injector) {
                 var rScope = $injector.get("$rootScope");
                 initSDK(rScope);
                 return {
                     shareOpenGraph: function (actionType, properties) {
-                        if(validateSharingDomain(properties['og:url'] ? properties['og:url'] : location.hostname)) {
+                        if (validateSharingDomain(properties['og:url'] ? properties['og:url'] : location.hostname)) {
                             execIfLoggedIn(fbUI({
                                 method: 'share_open_graph',
                                 action_type: actionType,
@@ -90,30 +94,45 @@ angular.module('Akoten.sharingiscaring', [])
                                 href: link
                             }));
                         }
+                    },
+                    isEventBasedShareOn: function () {
+                        return eventBasedShare;
                     }
                 }
             }
         };
     })
-    .directive("sicFacebookOgShare", ['sicFacebook', function (sicFacebook) {
+    .directive("sicFacebookOgShare", ['sicFacebook', "$rootScope", function (sicFacebook, $rootScope) {
         return {
             restrict: "EA",
             controller: function ($scope) {
-                $scope.shareOpenGraph = function () {
+                function ogShare(customUrl) {
                     var properties = {};
                     properties[$scope.ogObjectKey] = $scope.ogObjectValue;
-                    properties["og:url"] = $scope.ogUrl;
+                    properties["og:url"] = customUrl ? customUrl : $scope.ogUrl;
                     properties["og:title"] = $scope.ogTitle;
                     properties["og:type"] = $scope.ogType;
                     properties["og:image"] = $scope.ogImage;
                     properties["og:description"] = $scope.ogDescription;
                     sicFacebook.shareOpenGraph($scope.ogActionType, properties);
+                    $rootScope.$broadcast('sicOgShareInitialized');
+                }
+                if (sicFacebook.isEventBasedShareOn()) {
+                    $scope.$on('sicOpenGraphShareInitialize', function (event, args) {
+                        ogShare(args);
+                    })
+                } else {
+                    $scope.shareOpenGraph = function () {
+                        ogShare();
+                    }
                 }
             },
             link: function (scope, element) {
-                element.on('click', function () {
-                    scope.shareOpenGraph();
-                })
+                if (!sicFacebook.isEventBasedShareOn()) {
+                    element.on('click', function () {
+                        scope.shareOpenGraph();
+                    })
+                }
             },
             scope: {
                 ogObjectKey: "@",
