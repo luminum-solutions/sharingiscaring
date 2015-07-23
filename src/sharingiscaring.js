@@ -1,7 +1,7 @@
 /**
- @toc
+ * @toc
  */
-'use strict';
+'use_strict';
 angular.module('Akoten.sharingiscaring', [])
     .provider("sicFacebook", function () {
         var appId;
@@ -26,7 +26,7 @@ angular.module('Akoten.sharingiscaring', [])
                     FB.init({
                         appId: appId,
                         xfbml: true,
-                        version: 'v2.1'
+                        version: 'v2.4'
                     });
                     window.fbApiInitialized = true;
                 };
@@ -39,15 +39,28 @@ angular.module('Akoten.sharingiscaring', [])
             }
         }
 
-        function execIfLoggedIn(callback, actionScope) {
+        function getMe(ogFields, callback) {
+            FB.api('/me', {
+                fields: ogFields
+            }, function (person) {
+                callback(person);
+            });
+        }
+
+        function execIfLoggedIn(actionScope, ogFields, callback) {
             if (window.fbApiInitialized) {
                 FB.getLoginStatus(function (response) {
                     if (response.status === 'connected') {
-                        callback();
-                    }
-                    else {
+                        getMe(ogFields, callback);
+                    } else {
                         FB.login(function (response) {
-                            callback();
+                            if (response.status === 'connected') {
+
+                            } else if (response.status === 'not_authorized') {
+                                alert("You're not logged in properly. Please reload.")
+                            } else {
+                                alert("Something went wrong, please try again.")
+                            }
                         }, {scope: actionScope});
                     }
                 });
@@ -62,7 +75,7 @@ angular.module('Akoten.sharingiscaring', [])
             if (tmp.hostname === location.hostname) {
                 return true;
             } else {
-                alert("You should only share content that resides on the same domain as the one that is shared from.")
+                alert("You should only share content that resides on the same domain as the one that is shared from.");
                 return false;
             }
         }
@@ -78,13 +91,14 @@ angular.module('Akoten.sharingiscaring', [])
                 var rScope = $injector.get("$rootScope");
                 initSDK(rScope);
                 return {
-                    shareOpenGraph: function (actionType, properties) {
+                    execIfLoggedIn: execIfLoggedIn,
+                    shareOpenGraph: function (actionType, properties, ogScope, ogFields) {
                         if (validateSharingDomain(properties['og:url'] ? properties['og:url'] : location.hostname)) {
-                            execIfLoggedIn(fbUI({
+                            execIfLoggedIn(ogScope, ogFields, fbUI({
                                 method: 'share_open_graph',
                                 action_type: actionType,
                                 action_properties: JSON.stringify(properties)
-                            }), 'publish_actions');
+                            }));
                         }
                     },
                     share: function (link) {
@@ -105,7 +119,7 @@ angular.module('Akoten.sharingiscaring', [])
     .directive("sicFacebookOgShare", ['sicFacebook', "$rootScope", function (sicFacebook, $rootScope) {
         return {
             restrict: "EA",
-            controller: function ($scope) {
+            controller: function ($scope) { // As Angular directive controllers get executed before link functions, decide what to do immediately.
                 function ogShare(customUrl) {
                     var properties = {};
                     properties[$scope.ogObjectKey] = $scope.ogObjectValue;
@@ -114,23 +128,25 @@ angular.module('Akoten.sharingiscaring', [])
                     properties["og:type"] = $scope.ogType;
                     properties["og:image"] = $scope.ogImage;
                     properties["og:description"] = $scope.ogDescription;
-                    sicFacebook.shareOpenGraph($scope.ogActionType, properties);
+                    sicFacebook.shareOpenGraph($scope.ogActionType, properties, $scope.ogScope, $scope.ogFields);
                     $rootScope.$broadcast('sicOgShareInitialized');
                 }
+
                 if (sicFacebook.isEventBasedShareOn()) {
                     $scope.$on('sicOpenGraphShareInitialize', function (event, args) {
                         ogShare(args);
                     })
                 } else {
-                    $scope.shareOpenGraph = function () {
-                        ogShare();
+                    $scope.doOgShare = function () {
+                        var loginCallback = $scope.sicLoginCallback();
+                        (loginCallback instanceof Function) ? sicFacebook.execIfLoggedIn($scope.ogScope, $scope.ogFields, loginCallback) : ogShare();
                     }
                 }
             },
             link: function (scope, element) {
                 if (!sicFacebook.isEventBasedShareOn()) {
                     element.on('click', function () {
-                        scope.shareOpenGraph();
+                        scope.doOgShare();
                     })
                 }
             },
@@ -143,7 +159,10 @@ angular.module('Akoten.sharingiscaring', [])
                 ogType: "@",
                 ogImage: "@",
                 ogDescription: "@",
-                anchorElementContent: "@"
+                ogScope: "@",
+                ogFields: "@",
+                anchorElementContent: "@",
+                sicLoginCallback: "&"
             },
             template: "<a ng-bind='anchorElementContent'></a>"
         }
@@ -203,7 +222,7 @@ angular.module('Akoten.sharingiscaring', [])
                 sicFbOrderBy: '@',
                 sicFbStream: '@',
                 sicFbForceWall: '@',
-                sicFbShowBorder: '@',
+                sicFbShowBorder: '@'
             }
         }
     }).directive("sicTwitter", [function () {
@@ -220,5 +239,35 @@ angular.module('Akoten.sharingiscaring', [])
                 sicTwitClass: '@'
             },
             transclude: true
+        }
+    }]).factory('sicFacebookService', function ($q) {
+        return {
+            getMyLastName: function () {
+                var deferred = $q.defer();
+                FB.api('/me', {
+                    fields: 'last_name'
+                }, function (response) {
+                    if (!response || response.error) {
+                        deferred.reject('Error occured');
+                    } else {
+                        deferred.resolve(response);
+                    }
+                });
+                return deferred.promise;
+            }
+        }
+    }).directive("sicFacebookLogin", [function () {
+        return {
+            controller: function ($scope) {
+
+            },
+            restrict: "EA",
+            scope: {
+                sicScope: '@'
+            },
+            template: '<div class="fb-login-button" data-sic-scope="public_profile,email" onlogin="checkLoginState()" data-max-rows="1" data-size="medium" data-show-faces="false" data-auto-logout-link="false"></div>"',
+            link: function (scope, element) {
+
+            }
         }
     }]);
