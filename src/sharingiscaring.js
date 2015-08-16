@@ -38,16 +38,11 @@ angular.module('Akoten.sharingiscaring', [])
                 FB.ui(properties, callback);
             }
         }
-
-<<<<<<< Updated upstream:src/sharingiscaring.js
         function fbApi(url, method, properties, callback) {
             if (window.fbApiInitialized) {
                 FB.api(url, method, properties, callback);
             }
         }
-
-=======
->>>>>>> Stashed changes:sharingiscaring.js
         function getMe(ogFields, callback) {
             FB.api('/me', {
                 fields: ogFields
@@ -101,11 +96,6 @@ angular.module('Akoten.sharingiscaring', [])
                 initSDK(rScope);
                 return {
                     execIfLoggedIn: execIfLoggedIn,
-<<<<<<< Updated upstream:src/sharingiscaring.js
-                    shareOpenGraph: function (actionType, properties, ogScope, ogFields) {
-                        if (validateSharingDomain(properties['og:url'] ? properties['og:url'] : location.hostname)) {
-                            console.log(properties);
-=======
                     shareOpenGraph: function (accessToken, actionType, properties, ogScope, ogFields) {
                         if (validateSharingDomain(properties['og:url'] ? properties['og:url'] : location.hostname)) {
                             var data = {
@@ -113,29 +103,11 @@ angular.module('Akoten.sharingiscaring', [])
                             };
                             console.log(properties);
                             data[properties['og:object']] = properties[properties['og:object']];
->>>>>>> Stashed changes:sharingiscaring.js
                             execIfLoggedIn(ogScope, ogFields, fbUI({
                                 method: 'share_open_graph',
                                 action_type: actionType,
                                 action_properties: JSON.stringify(properties)
-<<<<<<< Updated upstream:src/sharingiscaring.js
                             }));
-                            //execIfLoggedIn(ogScope, ogFields, fbApi(properties['og:url'], 'post', {
-                            //    method: 'share_open_graph',
-                            //    action_type: actionType,
-                            //    action_properties: JSON.stringify(properties)
-                            //}, function(response) {
-                            //    console.log(response);
-                            //}));
-=======
-                            }, function (response) {
-                                console.log(response, data);
-                            }));
-                            FB.api('me/' + properties['og:action'], 'post', data, function (response) {
-                                    console.log(response, data);
-                                }
-                            );
->>>>>>> Stashed changes:sharingiscaring.js
                         }
                     },
                     share: function (link) {
@@ -157,42 +129,24 @@ angular.module('Akoten.sharingiscaring', [])
         return {
             restrict: "EA",
             controller: function ($scope) { // As Angular directive controllers get executed before link functions, decide what to do immediately.
-<<<<<<< Updated upstream:src/sharingiscaring.js
-                function ogShare(customUrl, customImage) {
-=======
                 function ogShare(accessToken, customUrl, customImage) {
->>>>>>> Stashed changes:sharingiscaring.js
                     var properties = {};
                     properties['og:action'] = $scope.ogActionType;
                     properties[$scope.ogObjectKey] = $scope.ogObjectValue;
-<<<<<<< Updated upstream:src/sharingiscaring.js
-=======
                     properties['object'] = $scope.ogObjectKey;
->>>>>>> Stashed changes:sharingiscaring.js
                     properties["og:url"] = customUrl ? customUrl : $scope.ogUrl;
                     properties["og:title"] = $scope.ogTitle;
                     properties["og:type"] = $scope.ogType;
                     properties["og:image"] = customImage ? customImage : $scope.ogImage;
                     properties["og:description"] = $scope.ogDescription;
-<<<<<<< Updated upstream:src/sharingiscaring.js
-                    sicFacebook.shareOpenGraph($scope.ogActionType, properties, $scope.ogScope, $scope.ogFields);
-=======
                     sicFacebook.shareOpenGraph(accessToken ? accessToken : $scope.accessToken, $scope.ogActionType, properties, $scope.ogScope, $scope.ogFields);
->>>>>>> Stashed changes:sharingiscaring.js
                     $rootScope.$broadcast('sicOgShareInitialized');
                 }
 
                 if (sicFacebook.isEventBasedShareOn()) {
-<<<<<<< Updated upstream:src/sharingiscaring.js
-                    $scope.$on('sicOpenGraphShareInitialize', function (event, args) {
-                        console.log(args);
-                        ogShare(args);
-                    })
-=======
                     $scope.$on('sicOpenGraphShareInitialize', function (event, accessToken, url, image) {
                         ogShare(accessToken, url, image);
                     });
->>>>>>> Stashed changes:sharingiscaring.js
                 } else {
                     $scope.doOgShare = function () {
                         var loginCallback = $scope.sicLoginCallback();
@@ -219,12 +173,8 @@ angular.module('Akoten.sharingiscaring', [])
                 ogScope: "@",
                 ogFields: "@",
                 anchorElementContent: "@",
-<<<<<<< Updated upstream:src/sharingiscaring.js
-                sicLoginCallback: "&"
-=======
                 sicLoginCallback: "&",
                 accessToken: "@"
->>>>>>> Stashed changes:sharingiscaring.js
             },
             template: "<a ng-bind='anchorElementContent'></a>"
         }
