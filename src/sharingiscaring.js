@@ -26,7 +26,7 @@ angular.module('Akoten.sharingiscaring', [])
                     FB.init({
                         appId: appId,
                         xfbml: true,
-                        version: 'v2.4'
+                        version: 'v2.3'
                     });
                     window.fbApiInitialized = true;
                 };
