@@ -39,6 +39,12 @@ angular.module('Akoten.sharingiscaring', [])
             }
         }
 
+        function fbApi(url, method, properties, callback) {
+            if (window.fbApiInitialized) {
+                FB.api(url, method, properties, callback);
+            }
+        }
+
         function getMe(ogFields, callback) {
             FB.api('/me', {
                 fields: ogFields
@@ -94,11 +100,19 @@ angular.module('Akoten.sharingiscaring', [])
                     execIfLoggedIn: execIfLoggedIn,
                     shareOpenGraph: function (actionType, properties, ogScope, ogFields) {
                         if (validateSharingDomain(properties['og:url'] ? properties['og:url'] : location.hostname)) {
+                            console.log(properties);
                             execIfLoggedIn(ogScope, ogFields, fbUI({
                                 method: 'share_open_graph',
                                 action_type: actionType,
                                 action_properties: JSON.stringify(properties)
                             }));
+                            //execIfLoggedIn(ogScope, ogFields, fbApi(properties['og:url'], 'post', {
+                            //    method: 'share_open_graph',
+                            //    action_type: actionType,
+                            //    action_properties: JSON.stringify(properties)
+                            //}, function(response) {
+                            //    console.log(response);
+                            //}));
                         }
                     },
                     share: function (link) {
@@ -120,13 +134,13 @@ angular.module('Akoten.sharingiscaring', [])
         return {
             restrict: "EA",
             controller: function ($scope) { // As Angular directive controllers get executed before link functions, decide what to do immediately.
-                function ogShare(customUrl) {
+                function ogShare(customUrl, customImage) {
                     var properties = {};
                     properties[$scope.ogObjectKey] = $scope.ogObjectValue;
                     properties["og:url"] = customUrl ? customUrl : $scope.ogUrl;
                     properties["og:title"] = $scope.ogTitle;
                     properties["og:type"] = $scope.ogType;
-                    properties["og:image"] = $scope.ogImage;
+                    properties["og:image"] = customImage ? customImage : $scope.ogImage;
                     properties["og:description"] = $scope.ogDescription;
                     sicFacebook.shareOpenGraph($scope.ogActionType, properties, $scope.ogScope, $scope.ogFields);
                     $rootScope.$broadcast('sicOgShareInitialized');
@@ -134,6 +148,7 @@ angular.module('Akoten.sharingiscaring', [])
 
                 if (sicFacebook.isEventBasedShareOn()) {
                     $scope.$on('sicOpenGraphShareInitialize', function (event, args) {
+                        console.log(args);
                         ogShare(args);
                     })
                 } else {
