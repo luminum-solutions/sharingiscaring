@@ -128,7 +128,6 @@ angular.module('Akoten.sharingiscaring', [])
     .directive("sicFacebookOgShare", ['sicFacebook', "$rootScope", function (sicFacebook, $rootScope) {
         return {
             restrict: "EA",
-
             controller: ["$scope", function ($scope) { // As Angular directive controllers get executed before link functions, decide what to do immediately.
                 function ogShare(accessToken, customUrl, customImage) {
                     var properties = {};
@@ -255,9 +254,6 @@ angular.module('Akoten.sharingiscaring', [])
         }
     }]).directive("sicFacebookLogin", [function () {
         return {
-            controller: function ($scope) {
-
-            },
             restrict: "EA",
             scope: {
                 sicScope: '@'
