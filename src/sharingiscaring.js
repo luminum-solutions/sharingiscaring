@@ -128,7 +128,8 @@ angular.module('Akoten.sharingiscaring', [])
     .directive("sicFacebookOgShare", ['sicFacebook', "$rootScope", function (sicFacebook, $rootScope) {
         return {
             restrict: "EA",
-            controller: function ($scope) { // As Angular directive controllers get executed before link functions, decide what to do immediately.
+
+            controller: ["$scope", function ($scope) { // As Angular directive controllers get executed before link functions, decide what to do immediately.
                 function ogShare(accessToken, customUrl, customImage) {
                     var properties = {};
                     properties['og:action'] = $scope.ogActionType;
@@ -153,7 +154,7 @@ angular.module('Akoten.sharingiscaring', [])
                         (loginCallback instanceof Function) ? sicFacebook.execIfLoggedIn($scope.ogScope, $scope.ogFields, loginCallback) : ogShare();
                     }
                 }
-            },
+            }],
             link: function (scope, element) {
                 if (!sicFacebook.isEventBasedShareOn()) {
                     element.on('click', function () {
@@ -182,11 +183,11 @@ angular.module('Akoten.sharingiscaring', [])
     .directive("sicFacebookShare", ["sicFacebook", function (sicFacebook) {
         return {
             restrict: "EA",
-            controller: function ($scope) {
+            controller: ["$scope", function ($scope) {
                 $scope.doShare = function () {
                     sicFacebook.share($scope.sicShareLink);
                 };
-            },
+            }],
             link: function (scope, element) {
                 element.on('click', function () {
                     scope.doShare();
